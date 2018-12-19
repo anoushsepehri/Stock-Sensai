@@ -1,62 +1,39 @@
-import csv
+import pandas as pd
 import numpy as np
 from sklearn.svm import SVR
-import matplotlib.pyplot as plt
- 
- 
-#plt.switch_backend('QT5Agg')  
- 
- 
- 
-dates = []
-prices = []
- 
-def get_data(filename):
-    with open(filename, 'r') as csvfile:
-        csvFileReader = csv.reader(csvfile)
-        next(csvFileReader) # skipping column names
-        for row in csvFileReader:
-            #dates.append(int(row[0].split('-')[0]))
-            #dates.append(float(row[0]))
-            prices.append(float(row[1]))
-    return
- 
-def predict_price(dates, prices, x):
 
-    array=[]
-    for i in range(x):
-        array.append(i)
+def get_data(doc):
+	data=pd.read_csv(doc)
+	open_price=data.Open
+	dates=data.Date
+	dates=dates.tolist()
+	open_price=open_price.tolist()
+	train_arr=[dates,open_price]
+	return train_arr
 
-    dates = np.reshape(dates,(len(dates), 1)) # converting to matrix of n X 1
-    array = np.reshape(array,(len(array), 1)) # converting to matrix of n X 1
- 
-    svr_rbf = SVR(kernel= 'rbf', C= 1e3, gamma= 0.1) # defining the support vector regression models
-    svr_rbf.fit(dates, prices) # fitting the data points in the models
-    predicted_price=svr_rbf.predict(array)
-   # print("Stock Predicted Price: ",predicted_price[-1])
- 
-    plt.scatter(dates, prices, color= 'black', label= 'Previous Prices') # plotting the initial datapoints 
-    plt.plot(dates, svr_rbf.predict(dates), color= 'red', label= 'RBF model') # plotting the line made by the RBF kernel
-    plt.plot(array, predicted_price, color= 'red', label= 'Predicted Price') # plotting the line made by the RBF kernel
-    plt.scatter(array, predicted_price, color= 'red', label= 'Predicted Price') # plotting the line made by the RBF kernel
-    plt.xlabel('Date')
-    plt.ylabel('Price')
-    plt.title('Support Vector Regression Model')
-    plt.legend()
-    plt.show()
- 
-    #return svr_rbf.predict(x)[0], svr_lin.predict(x)[0], svr_poly.predict(x)[0]
-    return svr_rbf.predict(array)
- 
- 
-get_data('SPLK.csv') # calling get_data method by passing the csv file to it
-x=len(prices)
+def fit_regression(train_arr):
+	training=[]
+	dates=train_arr[0]
+	open_prices=train_arr[1]
 
-for i in range(x):
-    dates.append(i)
+	for i in range(len(dates)):
+		training.append(i)
 
-#print ("Dates- ", dates)
-#print ("Prices- ", prices)
- 
-predicted_price = predict_price(dates, prices, x+1)  
-print (predicted_price[-1])
+	training = np.reshape(training,(len(training), 1))
+	open_prices = np.reshape(open_prices,(len(open_prices), 1))
+
+	svr_rbf = SVR(kernel= 'rbf', C= 1e3, gamma= 0.1)
+	svr_rbf.fit(training, open_prices.ravel())
+	next_day=len(dates)
+	prediction=svr_rbf.predict([[next_day]])
+
+	return prediction
+
+
+doc=input("Which csv file would you like to analyze: ")
+
+train_arr=get_data(doc)
+prediction=fit_regression(train_arr)
+
+end=input("Tomorrow's Opening Stock Price is " + str(prediction[0]))
+
