@@ -1,5 +1,7 @@
-Stock Price predictor using Sci kit learn, csv reading, and matlabplot library
+Stock Price predictor using Sci kit learn, pandas, and numpy
 
-Reads CSV file of stock prices and creates a prediction of the prices in the future
+Reads CSV file of stock prices and creates a prediction of opening stock price then next day
 
-uses vector regression to fit the stock price model
+uses rbf regression to fit data and make prediction
+
+written to expose myself to machine learning and the sci kit learn library
